@@ -1,18 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////
-//Terms of use
-///////////////////////////////////////////////////////////////////////////////////////
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-//THE SOFTWARE.
-///////////////////////////////////////////////////////////////////////////////////////
-//Safety note
-///////////////////////////////////////////////////////////////////////////////////////
-//Always remove the propellers and stay away from the motors unless you 
-//are 100% certain of what you are doing.
+// Cause: Setup and calibration of the control system of the flight controller.
+// Authors: Bianca Teixeira, Halê Valente, Matheus Araújo.
+//
+// Description: The software here provided is a version of the used in the project,
+// but it has minor differences in the values because in every adjust made in the
+// structure, theses values are reseted for granting the proper stabilization of the
+// drone.
+// 
+//Safety note: always remove the propellers and stay away from the motors unless you 
+//are 100% certain of the safety of doing so.
 ///////////////////////////////////////////////////////////////////////////////////////
 
 #include <Wire.h>               //Include the Wire.h library so we can communicate with the gyro
@@ -54,10 +50,10 @@ void loop(){
   
   Serial.println(F(""));
   Serial.println(F("==================================================="));
-  Serial.println(F("System check"));
+  Serial.println(F("Checagem de Sistema"));
   Serial.println(F("==================================================="));
   delay(1000);
-  Serial.println(F("Checking I2C clock speed."));
+  Serial.println(F("Checando a velocidade de clock I2C."));
   delay(1000);
   
   TWBR = 12;                      //Set the I2C clock speed to 400kHz.
@@ -67,20 +63,20 @@ void loop(){
   #endif                          //End of if statement
 
   if(TWBR == 12 && clockspeed_ok){
-    Serial.println(F("I2C clock speed is correctly set to 400kHz."));
+    Serial.println(F("A velocidade de clock I2C esta configurada corretamente a 400kHz."));
   }
   else{
-    Serial.println(F("I2C clock speed is not set to 400kHz. (ERROR 8)"));
+    Serial.println(F("A velocidade de clock I2C NAO esta configurada corretamente a 400kHz. (ERROR 8)"));
     error = 1;
   }
   
   if(error == 0){
     Serial.println(F(""));
     Serial.println(F("==================================================="));
-    Serial.println(F("Transmitter setup"));
+    Serial.println(F("Configuração do transmissor"));
     Serial.println(F("==================================================="));
     delay(1000);
-    Serial.print(F("Checking for valid receiver signals."));
+    Serial.print(F("Checando por sinais validos do transmissor.));
     //Wait 10 seconds until all receiver inputs are valid
     wait_for_receiver();
     Serial.println(F(""));
@@ -88,7 +84,7 @@ void loop(){
   //Quit the program in case of an error
   if(error == 0){
     delay(2000);
-    Serial.println(F("Place all sticks and subtrims in the center position within 10 seconds."));
+    Serial.println(F("Posicione todos os Place all controles na posicao central dentro de 10 segundos."));
     for(int i = 9;i > 0;i--){
       delay(1000);
       Serial.print(i);
@@ -101,7 +97,7 @@ void loop(){
     center_channel_3 = receiver_input_channel_3;
     center_channel_4 = receiver_input_channel_4;
     Serial.println(F(""));
-    Serial.println(F("Center positions stored."));
+    Serial.println(F("Posicoes centrais armazenadas."));
     Serial.print(F("Digital input 08 = "));
     Serial.println(receiver_input_channel_1);
     Serial.print(F("Digital input 09 = "));
@@ -114,10 +110,10 @@ void loop(){
     Serial.println(F(""));
   }
   if(error == 0){  
-    Serial.println(F("Move the throttle stick to full throttle and back to center"));
+    Serial.println(F("Mova o manche de aceleracao para aceleracao total e volte ao centro"));
     //Check for throttle movement
     check_receiver_inputs(1);
-    Serial.print(F("Throttle is connected to digital input "));
+    Serial.print(F("Acelerador esta conectado ao input digital."));
     Serial.println((channel_3_assign & 0b00000111) + 7);
     if(channel_3_assign & 0b10000000)Serial.println(F("Channel inverted = yes"));
     else Serial.println(F("Channel inverted = no"));
@@ -125,10 +121,10 @@ void loop(){
     
     Serial.println(F(""));
     Serial.println(F(""));
-    Serial.println(F("Move the roll stick to simulate left wing up and back to center"));
+    Serial.println(F("Mova o manche de Roll para simular a elevacao da asa esquerda e retorne ao centro."));
     //Check for throttle movement
     check_receiver_inputs(2);
-    Serial.print(F("Roll is connected to digital input "));
+    Serial.print(F("Roll esta conectado ao input digital."));
     Serial.println((channel_1_assign & 0b00000111) + 7);
     if(channel_1_assign & 0b10000000)Serial.println(F("Channel inverted = yes"));
     else Serial.println(F("Channel inverted = no"));
@@ -137,10 +133,10 @@ void loop(){
   if(error == 0){
     Serial.println(F(""));
     Serial.println(F(""));
-    Serial.println(F("Move the pitch stick to simulate nose up and back to center"));
+    Serial.println(F("Mova o manche de Pitch para simular a elevacao do nariz e retorne ao centro."));
     //Check for throttle movement
     check_receiver_inputs(3);
-    Serial.print(F("Pitch is connected to digital input "));
+    Serial.print(F("Pitch esta conectado ao input digital."));
     Serial.println((channel_2_assign & 0b00000111) + 7);
     if(channel_2_assign & 0b10000000)Serial.println(F("Channel inverted = yes"));
     else Serial.println(F("Channel inverted = no"));
@@ -149,10 +145,10 @@ void loop(){
   if(error == 0){
     Serial.println(F(""));
     Serial.println(F(""));
-    Serial.println(F("Move the yaw stick to simulate nose right and back to center"));
+    Serial.println(F("Mova o manche de Yaw para simular a curva do nariz para direita e retorne ao centro."));
     //Check for throttle movement
     check_receiver_inputs(4);
-    Serial.print(F("Yaw is connected to digital input "));
+    Serial.print(F("Yaw esta conectado ao input digital."));
     Serial.println((channel_4_assign & 0b00000111) + 7);
     if(channel_4_assign & 0b10000000)Serial.println(F("Channel inverted = yes"));
     else Serial.println(F("Channel inverted = no"));
@@ -161,13 +157,13 @@ void loop(){
   if(error == 0){
     Serial.println(F(""));
     Serial.println(F(""));
-    Serial.println(F("Gently move all the sticks simultaneously to their extends"));
-    Serial.println(F("When ready put the sticks back in their center positions"));
+    Serial.println(F("Mova suavemente todas os manches simultaneamente para as suas extremidades."));
+    Serial.println(F("Quando estiver pronto, coloque os manches nas posicoes centrais."));
     //Register the min and max values of the receiver channels
     register_min_max();
     Serial.println(F(""));
     Serial.println(F(""));
-    Serial.println(F("High, low and center values found during setup"));
+    Serial.println(F("Valores altos, baixos e centrais encontrados durante a configuração:"));
     Serial.print(F("Digital input 08 values:"));
     Serial.print(low_channel_1);
     Serial.print(F(" - "));
@@ -192,7 +188,7 @@ void loop(){
     Serial.print(center_channel_4);
     Serial.print(F(" - "));
     Serial.println(high_channel_4);
-    Serial.println(F("Move stick 'nose up' and back to center to continue"));
+    Serial.println(F("Mova o "nariz para cima" e volte para o centro para continuar."));
     check_to_continue();
   }
     
@@ -200,70 +196,70 @@ void loop(){
     //What gyro is connected
     Serial.println(F(""));
     Serial.println(F("==================================================="));
-    Serial.println(F("Gyro search"));
+    Serial.println(F("Busca de Giroscopio"));
     Serial.println(F("==================================================="));
     delay(2000);
     
-    Serial.println(F("Searching for MPU-6050 on address 0x68/104"));
+    Serial.println(F("Procurando por MPU-6050 no endereco 0x68/104"));
     delay(1000);
     if(search_gyro(0x68, 0x75) == 0x68){
-      Serial.println(F("MPU-6050 found on address 0x68"));
+      Serial.println(F("MPU-6050 econtrado no endereco 0x68"));
       type = 1;
       gyro_address = 0x68;
     }
     
     if(type == 0){
-      Serial.println(F("Searching for MPU-6050 on address 0x69/105"));
+      Serial.println(F("Procurando por MPU-6050 no endereco 0x69/105"));
       delay(1000);
       if(search_gyro(0x69, 0x75) == 0x68){
-        Serial.println(F("MPU-6050 found on address 0x69"));
+        Serial.println(F("MPU-6050 econtrado no endereco 0x69"));
         type = 1;
         gyro_address = 0x69;
       }
     }
     
     if(type == 0){
-      Serial.println(F("Searching for L3G4200D on address 0x68/104"));
+      Serial.println(F("Procurando por L3G4200D no endereco 0x68/104"));
       delay(1000);
       if(search_gyro(0x68, 0x0F) == 0xD3){
-        Serial.println(F("L3G4200D found on address 0x68"));
+        Serial.println(F("L3G4200D econtrado no endereco 0x68"));
         type = 2;
         gyro_address = 0x68;
       }
     }
     
     if(type == 0){
-      Serial.println(F("Searching for L3G4200D on address 0x69/105"));
+      Serial.println(F("Procurando por L3G4200D no endereco 0x69/105"));
       delay(1000);
       if(search_gyro(0x69, 0x0F) == 0xD3){
-        Serial.println(F("L3G4200D found on address 0x69"));
+        Serial.println(F("L3G4200D econtrado no endereco 0x69"));
         type = 2;
         gyro_address = 0x69;
       }
     }
     
     if(type == 0){
-      Serial.println(F("Searching for L3GD20H on address 0x6A/106"));
+      Serial.println(F("Procurando por L3GD20H no endereco 0x6A/106"));
       delay(1000);
       if(search_gyro(0x6A, 0x0F) == 0xD7){
-        Serial.println(F("L3GD20H found on address 0x6A"));
+        Serial.println(F("L3GD20H econtrado no endereco 0x6A"));
         type = 3;
         gyro_address = 0x6A;
       }
     }
     
     if(type == 0){
-     Serial.println(F("Searching for L3GD20H on address 0x6B/107"));
+     Serial.println(F("Procurando por L3GD20H no endereco 0x6B/107"));
       delay(1000);
       if(search_gyro(0x6B, 0x0F) == 0xD7){
-        Serial.println(F("L3GD20H found on address 0x6B"));
+        Serial.println(F("L3GD20H econtrado no endereco 0x6B"));
         type = 3;
         gyro_address = 0x6B;
       }
     }
     
     if(type == 0){
-      Serial.println(F("No gyro device found!!! (ERROR 3)"));
+      Serial.println(F("Nenhum giroscopio encontrado!!! (ERROR 3)"));
       error = 1;
     }
     
@@ -271,7 +267,7 @@ void loop(){
       delay(3000);
       Serial.println(F(""));
       Serial.println(F("==================================================="));
-      Serial.println(F("Gyro register settings"));
+      Serial.println(F("Configuracao de registro de giroscopio."));
       Serial.println(F("==================================================="));
       start_gyro(); //Setup the gyro for further use
     }
@@ -282,12 +278,12 @@ void loop(){
     delay(3000);
     Serial.println(F(""));
     Serial.println(F("==================================================="));
-    Serial.println(F("Gyro calibration"));
+    Serial.println(F("Calibracao do giroscopio"));
     Serial.println(F("==================================================="));
-    Serial.println(F("Don't move the quadcopter!! Calibration starts in 3 seconds"));
+    Serial.println(F("Nao mova o drone! Calibracao se inicia em 3 segundos."));
     delay(3000);
-    Serial.println(F("Calibrating the gyro, this will take +/- 8 seconds"));
-    Serial.print(F("Please wait"));
+    Serial.println(F("Calibrando o giroscopio, isso vai tomar +/- 8 segundos."));
+    Serial.print(F("Por favor, aguarde...));
     //Let's take multiple gyro data samples so we can determine the average gyro offset (calibration).
     for (cal_int = 0; cal_int < 2000 ; cal_int ++){              //Take 2000 readings for calibration.
       if(cal_int % 100 == 0)Serial.print(F("."));                //Print dot to indicate calibration.
@@ -313,7 +309,7 @@ void loop(){
     Serial.println(F(""));
     
     Serial.println(F("==================================================="));
-    Serial.println(F("Gyro axes configuration"));
+    Serial.println(F("Configuracao dos eixos do giroscopio."));
     Serial.println(F("==================================================="));
     
     //Detect the left wing up movement
