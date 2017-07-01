@@ -1,0 +1,68 @@
+#define VISUINO_ESP8266
+
+#include <OpenWire.h>
+#include <Mitov.h>
+#include <ESP8266WiFi.h>
+#include <Mitov_ESP8266_WiFi.h>
+#include <Ethernet.h>
+#include <SPI.h>
+#include <Mitov_FormattedSerial.h>
+#include <Mitov_GPS.h>
+#include <Mitov_Text.h>
+#include <Mitov_Timing.h>
+
+// Declaração dos pinots da placa
+
+namespace BoardDeclarations
+{
+Mitov::SerialPort<SERIAL_TYPE, &Serial> SerialPort0;
+Mitov::ArduinoSerialOutput<Mitov::SerialPort<SERIAL_TYPE, &Serial>, &SerialPort0> SerialOutput0;
+} // BoardDeclarations
+
+// Declarations
+
+namespace Declarations
+{
+Mitov::ESP8266WiFiModule TArduinoESP8266WiFiModule1;
+Mitov::ESP8266ModuleRemoteAccessPoint TArduinoESP8266WiFiModuleRemoteAccessPoint1( TArduinoESP8266WiFiModule1 );
+Mitov::TCPServerSocket<Mitov::BasicEthernetShield,WiFiServer,WiFiClient> TArduinoWiFiTCPServerSocket1( TArduinoESP8266WiFiModule1 );
+Mitov::EthernetSocketStringInput<Mitov::TCPServerSocket<Mitov::BasicEthernetShield,WiFiServer,WiFiClient>, &TArduinoWiFiTCPServerSocket1> TArduinoWiFiTCPServerSocket1_SerialInputString_1;
+Mitov::MitovSerialGPS GPS1 = Mitov::MitovSerialGPS( BoardDeclarations::SerialPort0, BoardDeclarations::SerialOutput0.OutputPin );
+Mitov::FormattedText_Fixed FormattedText1;
+Mitov::FormattedTextLengthElementTyped<Mitov::FormattedTextElementAnalog> TArduinoFormattedTextElementAnalog1( FormattedText1 );
+Mitov::FormattedTextLengthElementTyped<Mitov::FormattedTextElementAnalog> TArduinoFormattedTextElementAnalog2( FormattedText1 );
+Mitov::Delay Delay1;
+} // Declarations
+
+// Type Converters
+
+namespace TypeConverters
+{
+Mitov::Convert_BinaryToClock Converter0;
+} // TypeConverters
+
+//The setup function is called once at startup of the sketch
+void setup()
+{
+  Declarations::TArduinoESP8266WiFiModule1.HostName = "gpsserver";
+  Declarations::TArduinoESP8266WiFiModuleRemoteAccessPoint1.SSID = "esp";
+  Declarations::TArduinoESP8266WiFiModuleRemoteAccessPoint1.Password = "tereus27";
+  Declarations::TArduinoWiFiTCPServerSocket1.ConnectedOutputPin.Connect( TypeConverters::Converter0 );
+  TypeConverters::Converter0.OutputPin.Connect( Declarations::FormattedText1.ClockInputPin );
+  Declarations::GPS1.LocationOutputPins[ 0 ].Connect( Declarations::TArduinoFormattedTextElementAnalog1.InputPin );
+  Declarations::GPS1.LocationOutputPins[ 1 ].Connect( Declarations::TArduinoFormattedTextElementAnalog2.InputPin );
+  Declarations::FormattedText1.OutputPin.Connect( Declarations::TArduinoWiFiTCPServerSocket1_SerialInputString_1.InputPin );
+  Declarations::FormattedText1.OutputPin.Connect( Declarations::Delay1.StartInputPin );
+  Declarations::FormattedText1.AddReadyElement( (char *)"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\nRefresh: 5\r\n\r\n<!DOCTYPE html>\r\n<html> \r\n<head>\r\n   <script type=\"text/javascript\" \r\n           src=\"http://maps.google.com/maps/api/js?sensor=false\"></script>\r\n</head> \r\n<body>\r\n   <div id=\"map\" style=\"width: 800px; height: 600px\"></div> \r\n\r\n   <script type=\"text/javascript\"> \r\n      var myLatLng = {lat: ", 0 );
+  Declarations::FormattedText1.AddReadyElement( (char *)", lng: ", 1 );
+  Declarations::FormattedText1.AddNullElement( "};\r\n      var myOptions = {\r\n         zoom: 19,\r\n         center: myLatLng,\r\n         mapTypeId: google.maps.MapTypeId.HYBRID\r\n      };\r\n\r\n      var map = new google.maps.Map(document.getElementById(\"map\"), myOptions);\r\n      var marker = new google.maps.Marker({\r\n        position: myLatLng,\r\n        map: map,\r\n        title: 'My ESP8266 GPS'\r\n      });\r\n\r\n   </script> \r\n</body> \r\n</html>" );
+  Declarations::Delay1.OutputPin.Connect( Declarations::TArduinoWiFiTCPServerSocket1.DisconnectInputPin );
+
+  OpenWire::Component::_SystemInit();
+}
+
+// The loop function is called in an endless loop
+void loop()
+{
+  OpenWire::Component::_SystemLoop();
+}
